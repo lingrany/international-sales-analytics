@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仪表板功能演示说明</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        .feature-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .feature-title .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        .feature-desc {
+            font-size: 1em;
+            line-height: 1.6;
+        }
+        .demo-section {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border-left: 5px solid #667eea;
+        }
+        .demo-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+        .step-list {
+            list-style: none;
+            padding: 0;
+        }
+        .step-list li {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #48bb78;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .step-number {
+            background: #48bb78;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .access-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+        .access-link {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 15px;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        .access-link:hover {
+            transform: scale(1.05);
+            text-decoration: none;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 国际销售分析仪表板功能说明</h1>
+        
+        <div class="highlight">
+            🎯 这个仪表板的核心价值：将复杂的销售数据转化为直观的图表和指标，帮助你快速了解业务状况！
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-title">
+                    <span class="emoji">📅</span>
+                    时间范围选择
+                </div>
+                <div class="feature-desc">
+                    <strong>你设置的 2025/07/01 - 2025/07/31 的作用：</strong><br>
+                    • 只显示7月份的销售数据<br>
+                    • 计算7月份的总销售额、订单数<br>
+                    • 生成7月份的趋势图表<br>
+                    • 为对比分析提供基准数据
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-title">
+                    <span class="emoji">🔄</span>
+                    Compare 对比功能
+                </div>
+                <div class="feature-desc">
+                    <strong>勾选后的效果：</strong><br>
+                    • 自动选择6月份作为对比期间<br>
+                    • 图表显示两条线：7月 vs 6月<br>
+                    • 指标卡片显示增长百分比<br>
+                    • 一眼看出业务是增长还是下降
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-title">
+                    <span class="emoji">📊</span>
+                    Dimension 时间维度
+                </div>
+                <div class="feature-desc">
+                    <strong>Day（按天）的效果：</strong><br>
+                    • 显示7月每一天的销售额<br>
+                    • 31个数据点的折线图<br>
+                    • 找出销售高峰和低谷日期<br>
+                    • 分析每日销售规律
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-title">
+                    <span class="emoji">🎯</span>
+                    实际业务价值
+                </div>
+                <div class="feature-desc">
+                    <strong>帮助你回答这些问题：</strong><br>
+                    • 7月销售额比6月增长了多少？<br>
+                    • 哪几天销售最好？<br>
+                    • 什么时间段客户最活跃？<br>
+                    • 哪个渠道带来最多客户？
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-title">🚀 如何体验完整效果</div>
+            <ol class="step-list">
+                <li>
+                    <span class="step-number">1</span>
+                    <strong>访问仪表板</strong> - 点击下方链接打开页面
+                </li>
+                <li>
+                    <span class="step-number">2</span>
+                    <strong>设置时间范围</strong> - 选择你想分析的日期区间
+                </li>
+                <li>
+                    <span class="step-number">3</span>
+                    <strong>点击"Load Data"</strong> - 加载真实的JSON数据
+                </li>
+                <li>
+                    <span class="step-number">4</span>
+                    <strong>勾选"Compare"</strong> - 开启对比分析功能
+                </li>
+                <li>
+                    <span class="step-number">5</span>
+                    <strong>切换时间维度</strong> - 尝试Day/Week/Month不同视角
+                </li>
+                <li>
+                    <span class="step-number">6</span>
+                    <strong>观察图表变化</strong> - 看数据如何实时更新
+                </li>
+            </ol>
+        </div>
+
+        <div class="highlight">
+            💡 <strong>关键理解：</strong>这不只是显示数字，而是将数据变成决策依据！
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-title">🌐 立即体验</div>
+            <div class="access-links">
+                <a href="http://localhost:8080/assets/international.html" class="access-link" target="_blank">
+                    🎨 现代版仪表板
+                </a>
+                <a href="http://localhost:8080/assets/international-business.html" class="access-link" target="_blank">
+                    💼 商务版仪表板
+                </a>
+                <a href="http://localhost:8080/assets/index.html" class="access-link" target="_blank">
+                    📋 简化版仪表板
+                </a>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-title">📈 你会看到的效果</div>
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin: 10px 0; padding: 10px; background: white; border-radius: 5px;">
+                    📊 <strong>销售指标卡片</strong> - 总销售额、净销售额、订单数等关键数字
+                </li>
+                <li style="margin: 10px 0; padding: 10px; background: white; border-radius: 5px;">
+                    📈 <strong>趋势折线图</strong> - 销售额和订单数的时间变化曲线
+                </li>
+                <li style="margin: 10px 0; padding: 10px; background: white; border-radius: 5px;">
+                    🥧 <strong>流量来源饼图</strong> - 搜索引擎、社交媒体、直接访问的占比
+                </li>
+                <li style="margin: 10px 0; padding: 10px; background: white; border-radius: 5px;">
+                    🕐 <strong>24小时热力图</strong> - 一天中哪个时段访客最多
+                </li>
+                <li style="margin: 10px 0; padding: 10px; background: white; border-radius: 5px;">
+                    🔄 <strong>对比图表</strong> - 当前期间 vs 对比期间的双线对比
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
