@@ -2,24 +2,8 @@
   "version": 2,
   "routes": [
     {
-      "src": "/",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/demo",
-      "dest": "/simple_demo.html"
-    },
-    {
-      "src": "/business",
-      "dest": "/assets/international-business.html"
-    },
-    {
-      "src": "/simple",
-      "dest": "/assets/index.html"
-    },
-    {
-      "src": "/main",
-      "dest": "/assets/international.html"
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ]
 }
