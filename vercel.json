@@ -1,0 +1,56 @@
+{
+  "version": 2,
+  "name": "international-sales-analytics",
+  "builds": [
+    {
+      "src": "assets/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "src/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "data/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/assets/international.html"
+    },
+    {
+      "src": "/demo",
+      "dest": "/simple_demo.html"
+    },
+    {
+      "src": "/business",
+      "dest": "/assets/international-business.html"
+    },
+    {
+      "src": "/simple",
+      "dest": "/assets/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/data/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    }
+  ]
+}

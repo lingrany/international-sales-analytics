@@ -1,0 +1,27 @@
+{
+  "name": "international-sales-analytics",
+  "version": "1.0.0",
+  "description": "A powerful international sales analytics dashboard with real-time data visualization",
+  "main": "assets/international.html",
+  "scripts": {
+    "dev": "python start_server.py",
+    "start": "python -m http.server 8080",
+    "build": "echo 'Static site - no build required'",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "dashboard",
+    "analytics",
+    "javascript",
+    "chartjs",
+    "data-visualization",
+    "sales-analytics"
+  ],
+  "author": "lingrany",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lingrany/international-sales-analytics.git"
+  },
+  "homepage": "https://github.com/lingrany/international-sales-analytics#readme"
+}
