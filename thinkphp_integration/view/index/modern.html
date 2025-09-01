@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>International Sales Analytics Dashboard</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Date adapter for Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="tailwind.min.css">
+    <style>
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .metric-card-green {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .metric-card-orange {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        .metric-card-purple {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+        .metric-card-red {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .chart-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+        .chart-toggle.active {
+            background: rgba(59, 130, 246, 0.8);
+            border-color: #3b82f6;
+            color: white;
+        }
+        .comparison-section {
+            border-left: 3px solid #10b981;
+            background: rgba(16, 185, 129, 0.05);
+        }
+        .time-dimension-selector {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        .metric-change-positive {
+            color: #10b981;
+        }
+        .metric-change-negative {
+            color: #ef4444;
+        }
+        
+        /* 强制并列显示的CSS */
+        @media (min-width: 1280px) {
+            .metrics-grid {
+                display: grid !important;
+                grid-template-columns: repeat(5, 1fr) !important;
+                gap: 1rem !important;
+            }
+        }
+        
+        @media (min-width: 1024px) and (max-width: 1279px) {
+            .metrics-grid {
+                display: grid !important;
+                grid-template-columns: repeat(5, 1fr) !important;
+                gap: 0.75rem !important;
+            }
+            
+            .metrics-grid .metric-card,
+            .metrics-grid .metric-card-green,
+            .metrics-grid .metric-card-orange,
+            .metrics-grid .metric-card-purple,
+            .metrics-grid .metric-card-red {
+                padding: 0.75rem !important;
+            }
+            
+            .metrics-grid p {
+                font-size: 0.875rem !important;
+            }
+            
+            .metrics-grid .text-xl {
+                font-size: 1.125rem !important;
+            }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .metrics-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 0.75rem !important;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .metrics-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.75rem !important;
+            }
+        }
+            
+        .date-controls {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 0.75rem !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">📊 International Sales Analytics</h1>
+            <p class="text-lg text-gray-600">Real-time sales data monitoring and analysis</p>
+        </div>
+
+        <div class="glass-card rounded-xl p-4 mb-8">
+            <h2 class="text-lg font-semibold text-gray-800 mb-3">📅 Date Range & Comparison</h2>
+            <div class="date-controls flex flex-wrap gap-3 items-center justify-start">
+                <!-- Current Period -->
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm font-medium text-gray-700">Start:</label>
+                    <input type="date" id="startDate" class="px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm font-medium text-gray-700">End:</label>
+                    <input type="date" id="endDate" class="px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div class="w-px h-6 bg-gray-300 mx-2"></div>
+                
+                <!-- Comparison Period -->
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" id="enableComparison" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    <label class="text-sm font-medium text-gray-700">Compare</label>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm font-medium text-gray-700">Start:</label>
+                    <input type="date" id="compareStartDate" class="px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500" disabled>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm font-medium text-gray-700">End:</label>
+                    <input type="date" id="compareEndDate" class="px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500" disabled>
+                </div>
+                
+                <div class="w-px h-6 bg-gray-300 mx-2"></div>
+                
+                <button onclick="window.analytics.updateDashboard()" class="px-4 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                    Update
+                </button>
+                <button onclick="window.analytics.loadJSONData()" class="px-4 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                    Load Data
+                </button>
+                
+                <!-- Time Dimension Selector -->
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm font-medium text-gray-700">Dimension:</label>
+                    <select id="timeDimension" onchange="window.analytics.updateDashboard()" class="px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="hour">Hour</option>
+                        <option value="day" selected>Day</option>
+                        <option value="week">Week</option>
+                        <option value="month">Month</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="glass-card rounded-xl p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-6">📈 Performance</h2>
+            
+            <!-- All Five Metrics in One Row -->
+            <div class="metrics-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-3">
+                <div class="metric-card rounded-xl p-4 text-white">
+                    <div class="flex flex-col">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-xs opacity-90">Total Sales</p>
+                            <div class="text-2xl opacity-75">💰</div>
+                        </div>
+                        <p id="totalSales" class="text-xl font-bold mb-1">$0</p>
+                        <p id="totalSalesChange" class="text-xs opacity-80">vs last period</p>
+                    </div>
+                </div>
+                <div class="metric-card-green rounded-xl p-4 text-white">
+                    <div class="flex flex-col">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-xs opacity-90">Net Sales</p>
+                            <div class="text-2xl opacity-75">💵</div>
+                        </div>
+                        <p id="netSales" class="text-xl font-bold mb-1">$0</p>
+                        <p id="netSalesChange" class="text-xs opacity-80">vs last period</p>
+                    </div>
+                </div>
+                <div class="metric-card-orange rounded-xl p-4 text-white">
+                    <div class="flex flex-col">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-xs opacity-90">Orders</p>
+                            <div class="text-2xl opacity-75">📦</div>
+                        </div>
+                        <p id="totalOrders" class="text-xl font-bold mb-1">0</p>
+                        <p id="ordersChange" class="text-xs opacity-80">vs last period</p>
+                    </div>
+                </div>
+                <div class="metric-card-purple rounded-xl p-4 text-gray-800">
+                    <div class="flex flex-col">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-xs opacity-90">Products Sold</p>
+                            <div class="text-2xl opacity-75">🛍️</div>
+                        </div>
+                        <p id="productsSold" class="text-xl font-bold mb-1">0</p>
+                        <p id="productsSoldChange" class="text-xs opacity-80">vs last period</p>
+                    </div>
+                </div>
+                <div class="metric-card-red rounded-xl p-4 text-gray-800">
+                    <div class="flex flex-col">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-xs opacity-90">Variations Sold</p>
+                            <div class="text-2xl opacity-75">🎯</div>
+                        </div>
+                        <p id="variationsSold" class="text-xl font-bold mb-1">0</p>
+                        <p id="variationsSoldChange" class="text-xs opacity-80">vs last period</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="space-y-8">
+            <!-- Sales Charts Row -->
+            <div class="glass-card rounded-xl p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6">📊 Sales Analytics</h2>
+                
+                <!-- Net Sales Chart -->
+                <div class="mb-12">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-700">Net Sales</h3>
+                        <div class="flex space-x-2">
+                            <button id="netSalesByDay" onclick="window.analytics.toggleNetSalesView('day')" class="chart-toggle active px-4 py-2 rounded-md text-sm font-medium transition-all">
+                                By Day
+                            </button>
+                            <button id="netSalesByWeek" onclick="window.analytics.toggleNetSalesView('week')" class="chart-toggle px-4 py-2 rounded-md text-sm font-medium transition-all">
+                                By Week
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="netSalesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Orders Chart -->
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-700">Orders</h3>
+                        <div class="flex space-x-2">
+                            <button id="ordersByDay" onclick="window.analytics.toggleOrdersView('day')" class="chart-toggle active px-4 py-2 rounded-md text-sm font-medium transition-all">
+                                By Day
+                            </button>
+                            <button id="ordersByWeek" onclick="window.analytics.toggleOrdersView('week')" class="chart-toggle px-4 py-2 rounded-md text-sm font-medium transition-all">
+                                By Week
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="ordersChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Traffic Analysis Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Traffic Sources Distribution -->
+                <div class="glass-card rounded-xl p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">🎯 Traffic Sources</h2>
+                    <div class="chart-container">
+                        <canvas id="trafficSourceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 24-Hour Traffic Trends -->
+                <div class="glass-card rounded-xl p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">⏰ 24-Hour Traffic Trends</h2>
+                    <div class="chart-container">
+                        <canvas id="hourlyTrafficChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Analytics Charts -->
+            <!-- Note: Conversion Funnel and Weekly Activity Heatmap charts removed -->
+            <!-- Reason: Insufficient real data available in the JSON dataset -->
+            <!-- fa_orders table is empty (no conversion data) and traffic data insufficient for meaningful heatmap -->
+            <div class="glass-card rounded-xl p-6">
+                <div class="text-center text-gray-500 py-8">
+                    <p class="text-lg font-medium">📊 Additional Analytics</p>
+                    <p class="text-sm mt-2">Charts in this section have been removed as they require data not available in the current dataset.</p>
+                    <p class="text-sm">Traffic Source and 24-Hour Traffic Trends above are based on real JSON data.</p>
+                </div>
+            </div>
+
+            <!-- Comparison Chart (when enabled) -->
+            <div id="comparisonChartContainer" class="glass-card rounded-xl p-6" style="display: none;">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">🔄 Period Comparison</h2>
+                <div class="chart-container">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="text-center text-gray-500 text-sm">
+            <p>Last updated: <span id="lastUpdated">Never</span></p>
+        </div>
+    </div>
+
+    <script src="../src/utils/data-processor.js"></script>
+    <script src="../src/analysis/international-analytics.js"></script>
+</body>
+</html>
