@@ -92,7 +92,7 @@ class InternationalAnalytics {
         
         console.log('开始加载JSON数据...');
         
-        this.dataProcessor.loadData('../data/external/test_honeywhale_.json')
+        this.dataProcessor.loadData('/analysis18/static/data/external/test_honeywhale_.json')
             .then(data => {
                 console.log('JSON数据加载成功:', data.length, '条记录');
                 // 转换为销售数据格式
