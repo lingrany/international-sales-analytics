@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仪表板功能演示</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+        }
+        .demo-box {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        .effect-list {
+            list-style: none;
+            padding: 0;
+        }
+        .effect-list li {
+            background: white;
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+        }
+        .highlight {
+            background: linear-gradient(45deg, #ffeaa7, #fab1a0);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        .access-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 10px;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+        .access-button:hover {
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: white;
+        }
+        .step {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 仪表板功能效果说明</h1>
+        
+        <div class="highlight">
+            🎯 你设置的参数会产生什么效果？让我详细解释！
+        </div>
+
+        <div class="demo-box">
+            <div class="demo-title">📅 你的设置：Start: 2025/07/01, End: 2025/07/31</div>
+            <ul class="effect-list">
+                <li><strong>筛选数据：</strong>只显示7月1日到31日的销售数据</li>
+                <li><strong>计算指标：</strong>7月总销售额、订单数、产品销量等</li>
+                <li><strong>生成图表：</strong>7月每天的销售趋势折线图</li>
+                <li><strong>对比基准：</strong>为后续对比分析提供数据基础</li>
+            </ul>
+        </div>
+
+        <div class="demo-box">
+            <div class="demo-title">🔄 Compare 对比功能效果</div>
+            <ul class="effect-list">
+                <li><strong>自动计算：</strong>系统自动选择6月同期进行对比</li>
+                <li><strong>双线图表：</strong>图表显示两条线 - 7月(蓝色) vs 6月(红色)</li>
+                <li><strong>增长率：</strong>指标卡片显示"+12.5% vs 上期"这样的对比</li>
+                <li><strong>趋势分析：</strong>一眼看出业务是增长还是下降</li>
+            </ul>
+        </div>
+
+        <div class="demo-box">
+            <div class="demo-title">📊 Dimension: Day 的效果</div>
+            <ul class="effect-list">
+                <li><strong>按天展示：</strong>图表显示7月31天，每天一个数据点</li>
+                <li><strong>详细趋势：</strong>可以看到每日销售波动情况</li>
+                <li><strong>找出规律：</strong>哪几天销售最好，哪几天较差</li>
+                <li><strong>精确分析：</strong>比如7月15日销售额$2,100，7月25日$1,800</li>
+            </ul>
+        </div>
+
+        <div class="demo-box">
+            <div class="demo-title">💡 实际看到的效果</div>
+            <div class="step">
+                <strong>1. 销售指标卡片：</strong><br>
+                • 总销售额：$45,230 (+12.5% vs 6月)<br>
+                • 净销售额：$38,445 (+8.3% vs 6月)<br>
+                • 订单数：1,250单 (+15.2% vs 6月)
+            </div>
+            <div class="step">
+                <strong>2. 趋势图表：</strong><br>
+                • 折线图显示7月1-31日每天的销售曲线<br>
+                • 可以看到销售高峰和低谷<br>
+                • 对比模式下显示两条线进行比较
+            </div>
+            <div class="step">
+                <strong>3. 流量分析：</strong><br>
+                • 饼图显示：搜索引擎40%，社交媒体25%，直接访问35%<br>
+                • 24小时热力图：下午2-4点访客最多
+            </div>
+        </div>
+
+        <div class="highlight">
+            🚀 这不只是显示数字，而是帮你回答关键业务问题！
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="http://localhost:8081/assets/international.html" class="access-button" target="_blank">
+                🎨 体验现代版仪表板
+            </a>
+            <a href="http://localhost:8081/assets/international-business.html" class="access-button" target="_blank">
+                💼 体验商务版仪表板
+            </a>
+        </div>
+
+        <div class="demo-box">
+            <div class="demo-title">🎯 操作步骤</div>
+            <div class="step">1. 点击上方按钮打开仪表板</div>
+            <div class="step">2. 设置时间范围：2025/07/01 到 2025/07/31</div>
+            <div class="step">3. 勾选"Compare"开启对比功能</div>
+            <div class="step">4. 点击"Load Data"加载真实数据</div>
+            <div class="step">5. 观察图表和指标的变化</div>
+            <div class="step">6. 尝试切换不同的时间维度</div>
+        </div>
+    </div>
+</body>
+</html>吃

@@ -6,7 +6,7 @@ class DataProcessor {
     }
 
     // 加载并处理JSON数据
-    async loadData(jsonFile = '/analysis18/static/data/external/test_honeywhale_.json') {
+    async loadData(jsonFile = '/analysis18.php/index/static_file/data/test_honeywhale_.json') {
         try {
             console.log('开始加载数据文件...');
             const response = await fetch(jsonFile);
