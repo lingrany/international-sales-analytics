@@ -13,12 +13,72 @@ class InternationalAnalytics {
     }
 
     init() {
-        this.dataProcessor = new SQLiteDataProcessor();
+        // 智能选择数据处理器
+        this.dataProcessor = this.createDataProcessor();
         this.initializeDatePickers();
         this.initializeCharts();
         this.setupEventListeners();
-        // 自动加载SQLite数据
-        this.loadSQLiteData();
+        // 自动加载数据
+        this.loadData();
+    }
+
+    // 创建合适的数据处理器
+    createDataProcessor() {
+        // 检测环境
+        const isVercel = window.location.hostname.includes('vercel.app') || 
+                        window.location.hostname.includes('vercel.com') ||
+                        window.location.protocol === 'https:';
+        
+        if (isVercel) {
+            console.log('检测到Vercel环境，使用VercelDataProcessor');
+            return new VercelDataProcessor();
+        } else if (window.SQLiteDataProcessor) {
+            console.log('本地环境，使用SQLiteDataProcessor');
+            return new SQLiteDataProcessor();
+        } else {
+            console.log('回退到原始DataProcessor');
+            return new DataProcessor();
+        }
+    }
+
+    // 统一的数据加载方法
+    loadData() {
+        if (!this.dataProcessor) {
+            console.error('Data processor not initialized');
+            return;
+        }
+        
+        console.log('开始加载数据...');
+        
+        // 获取日期范围
+        const startDate = document.getElementById('startDate')?.value || this.formatDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
+        const endDate = document.getElementById('endDate')?.value || this.formatDate(new Date());
+        
+        // 根据处理器类型调用不同的加载方法
+        let loadPromise;
+        
+        if (this.dataProcessor instanceof VercelDataProcessor || this.dataProcessor instanceof SQLiteDataProcessor) {
+            loadPromise = this.dataProcessor.loadData(startDate, endDate);
+        } else {
+            // 原始DataProcessor
+            loadPromise = this.dataProcessor.loadData('../data/external/test_honeywhale_.json');
+        }
+        
+        loadPromise
+            .then(data => {
+                console.log('数据加载成功:', data.length, '条记录');
+                // 转换为销售数据格式
+                this.salesData = this.convertToSalesData(data);
+                this.updateDashboard();
+                this.updateLastUpdated();
+            })
+            .catch(error => {
+                console.error('数据加载失败:', error);
+                console.log('使用模拟数据代替...');
+                this.generateSampleData();
+                this.updateDashboard();
+                this.updateLastUpdated();
+            });
     }
 
     // 初始化日期选择器
@@ -83,40 +143,16 @@ class InternationalAnalytics {
         return date.toISOString().split('T')[0];
     }
 
-    // 加载SQLite数据
+    // 加载SQLite数据（保留兼容性）
     loadSQLiteData() {
-        if (!this.dataProcessor) {
-            console.error('Data processor not initialized');
-            return;
-        }
-        
-        console.log('开始加载SQLite数据...');
-        
-        // 获取日期范围
-        const startDate = document.getElementById('startDate')?.value || this.formatDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
-        const endDate = document.getElementById('endDate')?.value || this.formatDate(new Date());
-        
-        this.dataProcessor.loadData(startDate, endDate)
-            .then(data => {
-                console.log('SQLite数据加载成功:', data.length, '条记录');
-                // 转换为销售数据格式
-                this.salesData = this.convertToSalesData(data);
-                this.updateDashboard();
-                this.updateLastUpdated();
-            })
-            .catch(error => {
-                console.error('SQLite数据加载失败:', error);
-                console.log('使用模拟数据代替...');
-                this.generateSampleData();
-                this.updateDashboard();
-                this.updateLastUpdated();
-            });
+        console.log('调用统一数据加载方法...');
+        this.loadData();
     }
 
     // 加载JSON数据（保留兼容性）
     loadJSONData() {
-        console.log('切换到SQLite数据加载...');
-        this.loadSQLiteData();
+        console.log('调用统一数据加载方法...');
+        this.loadData();
     }
 
     // 将流量数据转换为销售数据格式

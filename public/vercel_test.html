@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vercel环境数据处理测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .data-display {
+            max-height: 300px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .performance-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Vercel环境数据处理测试</h1>
+        
+        <div class="test-section">
+            <h3>📊 环境检测</h3>
+            <div id="environmentStatus" class="status info">检测中...</div>
+            <button onclick="detectEnvironment()">重新检测环境</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 数据处理器测试</h3>
+            <div id="processorStatus" class="status info">等待测试...</div>
+            <button onclick="testDataProcessor()" id="testBtn">测试数据处理器</button>
+            <button onclick="loadSampleData()" id="loadBtn" disabled>加载示例数据</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📈 性能统计</h3>
+            <div class="performance-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="loadTime">-</div>
+                    <div class="stat-label">加载时间 (ms)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="dataSize">-</div>
+                    <div class="stat-label">数据量</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="processorType">-</div>
+                    <div class="stat-label">处理器类型</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="cacheStatus">-</div>
+                    <div class="stat-label">缓存状态</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 数据预览</h3>
+            <div id="dataDisplay" class="data-display">
+                <p>暂无数据，请先加载示例数据</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 调试信息</h3>
+            <div id="debugInfo" class="data-display">
+                <p>调试信息将在这里显示...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入所有数据处理器 -->
+    <script src="src/utils/data-processor.js"></script>
+    <script src="src/utils/sqlite-data-processor.js"></script>
+    <script src="src/utils/vercel-data-processor.js"></script>
+
+    <script>
+        let currentProcessor = null;
+        let testData = null;
+
+        // 环境检测
+        function detectEnvironment() {
+            const status = document.getElementById('environmentStatus');
+            const hostname = window.location.hostname;
+            const protocol = window.location.protocol;
+            
+            let environment = 'unknown';
+            let processorType = 'DataProcessor';
+            
+            if (hostname.includes('vercel.app') || hostname.includes('netlify.app')) {
+                environment = 'Static Hosting (Vercel/Netlify)';
+                processorType = 'VercelDataProcessor';
+            } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                environment = 'Local Development';
+                processorType = 'SQLiteDataProcessor';
+            } else {
+                environment = 'Production Server';
+                processorType = 'SQLiteDataProcessor';
+            }
+            
+            status.innerHTML = `
+                <strong>环境:</strong> ${environment}<br>
+                <strong>域名:</strong> ${hostname}<br>
+                <strong>协议:</strong> ${protocol}<br>
+                <strong>推荐处理器:</strong> ${processorType}
+            `;
+            status.className = 'status success';
+            
+            addDebugInfo(`环境检测完成: ${environment}, 推荐使用: ${processorType}`);
+        }
+
+        // 测试数据处理器
+        async function testDataProcessor() {
+            const status = document.getElementById('processorStatus');
+            const testBtn = document.getElementById('testBtn');
+            const loadBtn = document.getElementById('loadBtn');
+            
+            testBtn.disabled = true;
+            status.innerHTML = '正在测试数据处理器...';
+            status.className = 'status info';
+            
+            try {
+                // 智能选择处理器
+                const hostname = window.location.hostname;
+                if (hostname.includes('vercel.app') || hostname.includes('netlify.app')) {
+                    currentProcessor = new VercelDataProcessor();
+                    document.getElementById('processorType').textContent = 'Vercel';
+                } else {
+                    // 尝试SQLite处理器
+                    currentProcessor = new SQLiteDataProcessor();
+                    document.getElementById('processorType').textContent = 'SQLite';
+                }
+                
+                addDebugInfo(`创建处理器: ${currentProcessor.constructor.name}`);
+                
+                // 测试处理器基本功能
+                if (typeof currentProcessor.testConnection === 'function') {
+                    await currentProcessor.testConnection();
+                    addDebugInfo('处理器连接测试成功');
+                }
+                
+                status.innerHTML = `✅ 数据处理器测试成功<br>使用: ${currentProcessor.constructor.name}`;
+                status.className = 'status success';
+                loadBtn.disabled = false;
+                
+            } catch (error) {
+                console.error('处理器测试失败:', error);
+                addDebugInfo(`处理器测试失败: ${error.message}`);
+                
+                // 回退到基础处理器
+                currentProcessor = new DataProcessor();
+                document.getElementById('processorType').textContent = 'Basic';
+                
+                status.innerHTML = `⚠️ 回退到基础处理器<br>原因: ${error.message}`;
+                status.className = 'status warning';
+                loadBtn.disabled = false;
+            }
+            
+            testBtn.disabled = false;
+        }
+
+        // 加载示例数据
+        async function loadSampleData() {
+            if (!currentProcessor) {
+                alert('请先测试数据处理器');
+                return;
+            }
+            
+            const loadBtn = document.getElementById('loadBtn');
+            loadBtn.disabled = true;
+            loadBtn.textContent = '加载中...';
+            
+            const startTime = performance.now();
+            
+            try {
+                addDebugInfo('开始加载示例数据...');
+                
+                // 根据处理器类型加载数据
+                if (currentProcessor instanceof VercelDataProcessor) {
+                    testData = await currentProcessor.loadData('2025-08-01', '2025-08-31');
+                } else if (currentProcessor instanceof SQLiteDataProcessor) {
+                    testData = await currentProcessor.loadData('2025-08-01', '2025-08-31');
+                } else {
+                    // 基础处理器加载JSON文件
+                    await currentProcessor.loadData('../data/external/test_honeywhale_.json');
+                    testData = currentProcessor.data;
+                }
+                
+                const endTime = performance.now();
+                const loadTime = Math.round(endTime - startTime);
+                
+                // 更新性能统计
+                document.getElementById('loadTime').textContent = loadTime;
+                document.getElementById('dataSize').textContent = testData ? testData.length || Object.keys(testData).length : 0;
+                document.getElementById('cacheStatus').textContent = currentProcessor.cacheEnabled ? '启用' : '禁用';
+                
+                // 显示数据预览
+                displayDataPreview(testData);
+                
+                addDebugInfo(`数据加载成功，耗时: ${loadTime}ms，数据量: ${testData ? testData.length || Object.keys(testData).length : 0}`);
+                
+            } catch (error) {
+                console.error('数据加载失败:', error);
+                addDebugInfo(`数据加载失败: ${error.message}`);
+                
+                document.getElementById('dataDisplay').innerHTML = `
+                    <div class="error">
+                        <strong>数据加载失败:</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+            
+            loadBtn.disabled = false;
+            loadBtn.textContent = '加载示例数据';
+        }
+
+        // 显示数据预览
+        function displayDataPreview(data) {
+            const display = document.getElementById('dataDisplay');
+            
+            if (!data) {
+                display.innerHTML = '<p class="error">无数据</p>';
+                return;
+            }
+            
+            let preview = '';
+            if (Array.isArray(data)) {
+                preview = `
+                    <h4>数据数组 (${data.length} 条记录)</h4>
+                    <pre>${JSON.stringify(data.slice(0, 3), null, 2)}</pre>
+                    ${data.length > 3 ? '<p>... 更多数据</p>' : ''}
+                `;
+            } else if (typeof data === 'object') {
+                const keys = Object.keys(data);
+                preview = `
+                    <h4>数据对象 (${keys.length} 个属性)</h4>
+                    <pre>${JSON.stringify(data, null, 2).substring(0, 500)}</pre>
+                    ${JSON.stringify(data).length > 500 ? '<p>... 数据已截断</p>' : ''}
+                `;
+            } else {
+                preview = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+            
+            display.innerHTML = preview;
+        }
+
+        // 添加调试信息
+        function addDebugInfo(message) {
+            const debugInfo = document.getElementById('debugInfo');
+            const timestamp = new Date().toLocaleTimeString();
+            const newInfo = `<div>[${timestamp}] ${message}</div>`;
+            debugInfo.innerHTML = newInfo + debugInfo.innerHTML;
+        }
+
+        // 页面加载时自动检测环境
+        window.addEventListener('load', () => {
+            detectEnvironment();
+            addDebugInfo('页面加载完成，开始环境检测');
+        });
+    </script>
+</body>
+</html>
