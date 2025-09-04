@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLite数据处理测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .success {
+            color: #28a745;
+        }
+        .error {
+            color: #dc3545;
+        }
+        .info {
+            color: #17a2b8;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SQLite数据处理系统测试</h1>
+        <p>这个页面用于测试新的SQLite数据处理功能，替代原来的JSON文件直接处理方式。</p>
+        
+        <div class="container">
+            <h2>数据库操作</h2>
+            <button class="button" onclick="testDatabase()">测试数据库连接</button>
+            <button class="button" onclick="initDatabase()">初始化数据库</button>
+            <button class="button" onclick="loadData()">加载数据</button>
+            <button class="button" onclick="clearLog()">清除日志</button>
+            
+            <div id="status"></div>
+            <div id="log" class="log"></div>
+        </div>
+        
+        <div class="container">
+            <h2>数据统计</h2>
+            <div id="stats"></div>
+        </div>
+        
+        <div class="container">
+            <h2>API测试</h2>
+            <button class="button" onclick="testAPI('dashboard_summary')">仪表板汇总</button>
+            <button class="button" onclick="testAPI('daily_summary')">日常汇总</button>
+            <button class="button" onclick="testAPI('hourly_traffic')">小时流量</button>
+            <button class="button" onclick="testAPI('traffic_sources')">流量来源</button>
+            <button class="button" onclick="testAPI('page_performance')">页面性能</button>
+            
+            <div id="apiResults" class="log"></div>
+        </div>
+    </div>
+
+    <script src="src/utils/sqlite-data-processor.js"></script>
+    <script>
+        let dataProcessor = null;
+        
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            logElement.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function setStatus(message, type = 'info') {
+            const statusElement = document.getElementById('status');
+            statusElement.className = `status ${type}`;
+            statusElement.textContent = message;
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            document.getElementById('apiResults').innerHTML = '';
+        }
+        
+        async function testDatabase() {
+            try {
+                log('开始测试数据库连接...', 'info');
+                setStatus('正在测试数据库连接...', 'info');
+                
+                if (!dataProcessor) {
+                    dataProcessor = new SQLiteDataProcessor();
+                }
+                
+                const dbInfo = await dataProcessor.testDatabase();
+                
+                if (dbInfo) {
+                    log('数据库连接成功！', 'success');
+                    log(`现有表: ${dbInfo.existing_tables.join(', ')}`, 'info');
+                    log(`记录统计: ${JSON.stringify(dbInfo.record_counts, null, 2)}`, 'info');
+                    setStatus('数据库连接正常', 'success');
+                    
+                    // 更新统计信息
+                    updateStats(dbInfo);
+                } else {
+                    log('数据库连接失败或未初始化', 'error');
+                    setStatus('数据库连接失败', 'error');
+                }
+            } catch (error) {
+                log(`数据库测试错误: ${error.message}`, 'error');
+                setStatus('数据库测试失败', 'error');
+            }
+        }
+        
+        async function initDatabase() {
+            try {
+                log('开始初始化数据库...', 'info');
+                setStatus('正在初始化数据库...', 'info');
+                
+                if (!dataProcessor) {
+                    dataProcessor = new SQLiteDataProcessor();
+                }
+                
+                const success = await dataProcessor.initDatabase();
+                
+                if (success) {
+                    log('数据库初始化成功！', 'success');
+                    setStatus('数据库初始化完成', 'success');
+                    
+                    // 重新测试数据库
+                    setTimeout(testDatabase, 1000);
+                } else {
+                    log('数据库初始化失败', 'error');
+                    setStatus('数据库初始化失败', 'error');
+                }
+            } catch (error) {
+                log(`数据库初始化错误: ${error.message}`, 'error');
+                setStatus('数据库初始化失败', 'error');
+            }
+        }
+        
+        async function loadData() {
+            try {
+                log('开始加载数据...', 'info');
+                setStatus('正在加载数据...', 'info');
+                
+                if (!dataProcessor) {
+                    dataProcessor = new SQLiteDataProcessor();
+                }
+                
+                const data = await dataProcessor.loadData();
+                
+                if (data && data.length > 0) {
+                    log(`数据加载成功！共 ${data.length} 条记录`, 'success');
+                    log(`数据示例: ${JSON.stringify(data.slice(0, 3), null, 2)}`, 'info');
+                    setStatus(`数据加载完成 (${data.length} 条记录)`, 'success');
+                } else {
+                    log('数据加载失败或无数据', 'error');
+                    setStatus('数据加载失败', 'error');
+                }
+            } catch (error) {
+                log(`数据加载错误: ${error.message}`, 'error');
+                setStatus('数据加载失败', 'error');
+            }
+        }
+        
+        async function testAPI(action) {
+            try {
+                log(`测试API: ${action}`, 'info');
+                
+                const startDate = '2025-08-01';
+                const endDate = '2025-08-31';
+                const url = `api/analytics_api.php?action=${action}&start_date=${startDate}&end_date=${endDate}`;
+                
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                const apiResults = document.getElementById('apiResults');
+                apiResults.innerHTML += `\n=== ${action.toUpperCase()} ===\n`;
+                apiResults.innerHTML += JSON.stringify(result, null, 2) + '\n';
+                apiResults.scrollTop = apiResults.scrollHeight;
+                
+                if (result.status === 'success') {
+                    log(`API ${action} 调用成功`, 'success');
+                } else {
+                    log(`API ${action} 调用失败: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                log(`API ${action} 测试错误: ${error.message}`, 'error');
+            }
+        }
+        
+        function updateStats(dbInfo) {
+            const statsElement = document.getElementById('stats');
+            let html = '<h3>数据库统计</h3>';
+            
+            if (dbInfo.record_counts) {
+                html += '<ul>';
+                for (const [table, count] of Object.entries(dbInfo.record_counts)) {
+                    html += `<li><strong>${table}</strong>: ${count} 条记录</li>`;
+                }
+                html += '</ul>';
+            }
+            
+            if (dataProcessor) {
+                const cacheInfo = dataProcessor.getCacheInfo();
+                html += '<h4>缓存信息</h4>';
+                html += `<p>缓存大小: ${cacheInfo.size} 项</p>`;
+                html += `<p>缓存超时: ${cacheInfo.timeout / 1000} 秒</p>`;
+            }
+            
+            statsElement.innerHTML = html;
+        }
+        
+        // 页面加载完成后自动测试
+        document.addEventListener('DOMContentLoaded', function() {
+            log('页面加载完成，SQLite数据处理系统已就绪', 'success');
+            setStatus('系统就绪，请点击按钮进行测试', 'info');
+        });
+    </script>
+</body>
+</html>

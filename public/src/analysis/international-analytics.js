@@ -13,12 +13,12 @@ class InternationalAnalytics {
     }
 
     init() {
-        this.dataProcessor = new DataProcessor();
+        this.dataProcessor = new SQLiteDataProcessor();
         this.initializeDatePickers();
         this.initializeCharts();
         this.setupEventListeners();
-        // 自动加载JSON数据
-        this.loadJSONData();
+        // 自动加载SQLite数据
+        this.loadSQLiteData();
     }
 
     // 初始化日期选择器
@@ -83,30 +83,40 @@ class InternationalAnalytics {
         return date.toISOString().split('T')[0];
     }
 
-    // 加载JSON数据
-    loadJSONData() {
+    // 加载SQLite数据
+    loadSQLiteData() {
         if (!this.dataProcessor) {
             console.error('Data processor not initialized');
             return;
         }
         
-        console.log('开始加载JSON数据...');
+        console.log('开始加载SQLite数据...');
         
-        this.dataProcessor.loadData('../data/external/test_honeywhale_.json')
+        // 获取日期范围
+        const startDate = document.getElementById('startDate')?.value || this.formatDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
+        const endDate = document.getElementById('endDate')?.value || this.formatDate(new Date());
+        
+        this.dataProcessor.loadData(startDate, endDate)
             .then(data => {
-                console.log('JSON数据加载成功:', data.length, '条记录');
+                console.log('SQLite数据加载成功:', data.length, '条记录');
                 // 转换为销售数据格式
                 this.salesData = this.convertToSalesData(data);
                 this.updateDashboard();
                 this.updateLastUpdated();
             })
             .catch(error => {
-                console.error('JSON数据加载失败:', error);
+                console.error('SQLite数据加载失败:', error);
                 console.log('使用模拟数据代替...');
                 this.generateSampleData();
                 this.updateDashboard();
                 this.updateLastUpdated();
             });
+    }
+
+    // 加载JSON数据（保留兼容性）
+    loadJSONData() {
+        console.log('切换到SQLite数据加载...');
+        this.loadSQLiteData();
     }
 
     // 将流量数据转换为销售数据格式
